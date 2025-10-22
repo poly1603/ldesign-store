@@ -114,8 +114,7 @@
     "dist"
   ],
   "scripts": {
-    "build": "ldesign-builder build -f esm,cjs,umd",
-    "build:watch": "ldesign-builder build --watch",
+    "build": "ldesign-builder build -f esm,cjs,umd,dts",
     "dev": "rollup -c -w",
     "type-check": "vue-tsc --noEmit",
     "lint": "eslint . --fix",
