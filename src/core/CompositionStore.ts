@@ -9,6 +9,7 @@ import type { CacheOptions, PersistOptions } from '../types'
 import { defineStore } from 'pinia'
 import { computed, onUnmounted, reactive, ref, watch } from 'vue'
 import { PerformanceOptimizer } from './PerformanceOptimizer'
+import { SubscriptionManager } from './SubscriptionManager'
 
 /**
  * Composition Store 上下文
@@ -93,7 +94,29 @@ export interface CompositionStoreInstance<T = any> {
 }
 
 /**
- * 创建 Composition Store
+ * 创建 Composition Store（优化版）
+ * 
+ * 创建一个使用 Composition API 风格的 Store。
+ * 修复了内存泄漏问题，增强了资源管理。
+ * 
+ * @template T - Store 状态类型
+ * @param options - Store 配置选项
+ * @param setup - Setup 函数，定义 Store 的状态和逻辑
+ * @returns Store 工厂函数
+ * 
+ * @example
+ * ```typescript
+ * const useCounterStore = createCompositionStore(
+ *   { id: 'counter' },
+ *   ({ state, computed }) => {
+ *     const count = state(0)
+ *     const doubleCount = computed(() => count.value * 2)
+ *     const increment = () => count.value++
+ *     
+ *     return { count, doubleCount, increment }
+ *   }
+ * )
+ * ```
  */
 export function createCompositionStore<T = any>(
   options: CompositionStoreOptions,
@@ -105,10 +128,10 @@ export function createCompositionStore<T = any>(
     persistence: typeof options.persist === 'object' ? options.persist : undefined,
   })
 
-  // 使用WeakMap存储状态，避免内存泄漏
-  const stateCache = new WeakMap<any, { initial: any; current: T }>()
-  // 存储初始状态的副本，而不是工厂函数
-  let initialStateCopy: any = null
+  // 使用 Map 存储初始状态（而不是 WeakMap，避免引用问题）
+  // 每个 store 实例只存储一份初始状态
+  let initialState: T | null = null
+  let isInitialized = false
 
   // 创建 Pinia Store 定义，使用 setup 语法
   const storeDefinition = defineStore(options.id, () => {
@@ -164,13 +187,17 @@ export function createCompositionStore<T = any>(
     // 执行设置函数
     const storeState = setup(context)
 
-    // 保存初始状态的深拷贝（用于 $reset）
-    if (!initialStateCopy && typeof storeState === 'object' && storeState !== null) {
-      initialStateCopy = JSON.parse(JSON.stringify(storeState))
+    // 首次初始化时，保存初始状态的深拷贝（用于 $reset）
+    if (!isInitialized && typeof storeState === 'object' && storeState !== null) {
+      try {
+        initialState = JSON.parse(JSON.stringify(storeState)) as T
+        isInitialized = true
+      } catch (error) {
+        console.warn('Failed to serialize initial state:', error)
+        initialState = storeState
+        isInitialized = true
+      }
     }
-
-    // 使用WeakMap缓存状态
-    stateCache.set(storeDefinition, { initial: initialStateCopy, current: storeState })
 
     // 如果启用持久化，自动恢复状态
     if (options.persist) {
@@ -186,49 +213,42 @@ export function createCompositionStore<T = any>(
   // 返回 Store 工厂函数
   return (): CompositionStoreInstance<T> => {
     const store = storeDefinition()
-    const cleanupFunctions: (() => void)[] = []
+    // 使用 SubscriptionManager 管理订阅
+    const subscriptionManager = new SubscriptionManager()
 
     const instance: CompositionStoreInstance<T> = {
       $id: options.id,
 
       get $state() {
-        const cached = stateCache.get(storeDefinition)
-        return cached?.current || ({} as T)
+        return store.$state as T
       },
 
       $reset() {
-        const cached = stateCache.get(storeDefinition)
-        if (cached?.initial && typeof cached.initial === 'object') {
-          // 深拷贝初始状态来重置
-          const resetState = JSON.parse(JSON.stringify(cached.initial))
-          Object.assign(store.$state, resetState)
-          // 更新缓存的当前状态
-          cached.current = resetState
+        if (initialState && typeof initialState === 'object') {
+          try {
+            // 深拷贝初始状态来重置
+            const resetState = JSON.parse(JSON.stringify(initialState))
+            Object.assign(store.$state, resetState)
+          } catch (error) {
+            console.warn('Failed to reset state:', error)
+          }
         }
       },
 
       $patch(partialStateOrMutator: any) {
-        const cached = stateCache.get(storeDefinition)
         if (typeof partialStateOrMutator === 'function') {
           ; (store as any).$patch(partialStateOrMutator)
-          // 更新缓存状态
-          if (cached?.current) {
-            partialStateOrMutator(cached.current)
-          }
         } else {
           ; (store as any).$patch(partialStateOrMutator)
-          // 更新缓存状态
-          if (cached?.current && typeof cached.current === 'object') {
-            Object.assign(cached.current, partialStateOrMutator)
-          }
         }
       },
 
       $subscribe(callback, subscribeOptions) {
         const unsubscribe = store.$subscribe(callback as any, subscribeOptions)
 
+        // 如果不是分离订阅，添加到订阅管理器
         if (!subscribeOptions?.detached) {
-          cleanupFunctions.push(unsubscribe)
+          subscriptionManager.add(unsubscribe)
         }
 
         return unsubscribe
@@ -236,14 +256,14 @@ export function createCompositionStore<T = any>(
 
       $onAction(callback) {
         const unsubscribe = store.$onAction(callback as any)
-        cleanupFunctions.push(unsubscribe)
+        // 添加到订阅管理器
+        subscriptionManager.add(unsubscribe)
         return unsubscribe
       },
 
       $dispose() {
-        // 执行所有清理函数
-        cleanupFunctions.forEach(cleanup => cleanup())
-        cleanupFunctions.length = 0
+        // 清理所有订阅
+        subscriptionManager.dispose()
 
         // 清理性能优化器
         optimizer.dispose()

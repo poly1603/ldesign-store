@@ -1,6 +1,35 @@
 /**
  * 装饰器模块
- * 导出所有装饰器相关的功能
+ * 
+ * 导出所有装饰器相关的功能。
+ * 装饰器提供了优雅的方式来定义 Store 的状态、动作和计算属性。
+ * 
+ * **可用装饰器**:
+ * - **状态装饰器**: `@State`, `@ReactiveState`, `@PersistentState`, `@ReadonlyState`
+ * - **动作装饰器**: `@Action`, `@AsyncAction`, `@CachedAction`, `@DebouncedAction`, `@ThrottledAction`
+ * - **计算属性装饰器**: `@Getter`, `@CachedGetter`, `@DependentGetter`, `@MemoizedGetter`
+ * 
+ * @module decorators
+ * 
+ * @example
+ * ```typescript
+ * import { BaseStore, State, Action, Getter } from '@ldesign/store'
+ * 
+ * class UserStore extends BaseStore {
+ *   @State({ default: '' })
+ *   name: string = ''
+ *   
+ *   @Action()
+ *   setName(name: string) {
+ *     this.name = name
+ *   }
+ *   
+ *   @Getter()
+ *   get displayName() {
+ *     return `用户: ${this.name}`
+ *   }
+ * }
+ * ```
  */
 
 // 类型定义

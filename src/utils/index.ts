@@ -3,6 +3,10 @@
  */
 
 export * from './advanced-cache'
+
+// 异步状态管理
+export * from './async-state'
+
 // 缓存工具
 export * from './cache'
 export * from './cache-interface'

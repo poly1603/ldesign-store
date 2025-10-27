@@ -43,8 +43,8 @@ export type SafeGetterDefinition<
   T extends Record<string, any> = Record<string, any>,
   S extends Record<string, unknown> = Record<string, unknown>
 > = {
-  readonly [K in keyof T]: (state: S) => T[K]
-}
+    readonly [K in keyof T]: (state: S) => T[K]
+  }
 
 /**
  * 更严格的状态类型定义
@@ -241,3 +241,4 @@ export type InferGetters<T> = T extends StoreDefinition<any, any, infer G>
 export * from './decorators'
 export * from './hooks'
 export * from './provider'
+export * from './type-inference'

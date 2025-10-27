@@ -1,6 +1,16 @@
 /**
  * 函数式 Store 创建器
- * 提供函数式的 Store 定义方式
+ * 
+ * 提供函数式的 Store 定义方式，相比类式 Store 更简洁直观。
+ * 适合不需要复杂继承和装饰器的场景。
+ * 
+ * **核心特性**:
+ * - 简洁的函数式 API
+ * - 完整的类型推断
+ * - 内置缓存和持久化
+ * - 自动资源管理
+ * 
+ * @module FunctionalStore
  */
 
 import type { Store, StoreDefinition } from 'pinia'
@@ -13,6 +23,7 @@ import type {
 } from '../types'
 import { defineStore as piniaDefineStore } from 'pinia'
 import { PerformanceOptimizer } from './PerformanceOptimizer'
+import { SubscriptionManager } from './SubscriptionManager'
 
 /**
  * 函数式 Store 定义选项
@@ -96,7 +107,8 @@ export function createFunctionalStore<
   // 返回 Store 工厂函数
   return (): FunctionalStoreInstance<TState, TActions, TGetters> => {
     const store = storeDefinition()
-    const cleanupFunctions: (() => void)[] = []
+    // 使用 SubscriptionManager 管理订阅
+    const subscriptionManager = new SubscriptionManager()
 
     // 如果启用持久化，自动恢复状态
     if (options.persist) {
@@ -136,8 +148,9 @@ export function createFunctionalStore<
       $subscribe(callback, subscribeOptions) {
         const unsubscribe = store.$subscribe(callback as any, subscribeOptions)
 
+        // 如果不是分离订阅，添加到订阅管理器
         if (!subscribeOptions?.detached) {
-          cleanupFunctions.push(unsubscribe)
+          subscriptionManager.add(unsubscribe)
         }
 
         return unsubscribe
@@ -145,14 +158,14 @@ export function createFunctionalStore<
 
       $onAction(callback) {
         const unsubscribe = store.$onAction(callback as any)
-        cleanupFunctions.push(unsubscribe)
+        // 添加到订阅管理器
+        subscriptionManager.add(unsubscribe)
         return unsubscribe
       },
 
       $dispose() {
-        // 执行所有清理函数
-        cleanupFunctions.forEach(cleanup => cleanup())
-        cleanupFunctions.length = 0
+        // 清理所有订阅
+        subscriptionManager.dispose()
 
         // 清理性能优化器
         optimizer.dispose()

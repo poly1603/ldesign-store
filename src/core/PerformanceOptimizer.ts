@@ -5,6 +5,7 @@
 
 import type { PersistOptions } from '../types'
 import { LRUCache } from '../utils/cache'
+import { TimerManager } from './TimerManager'
 
 /**
  * 缓存管理器
@@ -101,7 +102,7 @@ export class PersistenceManager {
       if (!state || (typeof state === 'object' && Object.keys(state).length === 0)) {
         return
       }
-      
+
       // 检查状态是否有效
       if (state === undefined || state === null) {
         this.storage.removeItem(key)
@@ -180,13 +181,35 @@ export class PersistenceManager {
 }
 
 /**
- * 防抖管理器
+ * 防抖管理器（优化版）
+ * 
+ * 使用 TimerManager 统一管理定时器，确保正确清理。
+ * 防抖可以延迟函数执行，只在最后一次调用后的指定时间执行。
  */
 export class DebounceManager {
   private timers = new Map<string, NodeJS.Timeout>()
+  private timerManager = new TimerManager()
 
   /**
    * 防抖执行
+   * 
+   * 创建一个防抖函数，在连续调用时只执行最后一次。
+   * 
+   * @param key - 防抖键，用于区分不同的防抖操作
+   * @param fn - 要防抖的函数
+   * @param delay - 延迟时间（毫秒）
+   * @returns 防抖包装后的函数
+   * 
+   * @example
+   * ```typescript
+   * const debouncedSearch = debounceManager.debounce(
+   *   'search',
+   *   async (query: string) => {
+   *     return await api.search(query)
+   *   },
+   *   300
+   * )
+   * ```
    */
   debounce<T extends (...args: any[]) => any>(
     key: string,
@@ -198,11 +221,12 @@ export class DebounceManager {
         // 清除之前的定时器
         const existingTimer = this.timers.get(key)
         if (existingTimer) {
-          clearTimeout(existingTimer)
+          this.timerManager.clearTimeout(existingTimer)
+          this.timers.delete(key)
         }
 
-        // 设置新的定时器
-        const timer = setTimeout(async () => {
+        // 设置新的定时器（使用 TimerManager）
+        const timer = this.timerManager.setTimeout(async () => {
           try {
             const result = await fn(...args)
             resolve(result)
@@ -220,23 +244,39 @@ export class DebounceManager {
 
   /**
    * 取消防抖
+   * 
+   * 取消指定键的防抖定时器。
+   * 
+   * @param key - 防抖键
    */
   cancel(key: string): void {
     const timer = this.timers.get(key)
     if (timer) {
-      clearTimeout(timer)
+      this.timerManager.clearTimeout(timer)
       this.timers.delete(key)
     }
   }
 
   /**
    * 清空所有防抖
+   * 
+   * 取消所有防抖定时器。
    */
   clear(): void {
     for (const timer of this.timers.values()) {
-      clearTimeout(timer)
+      this.timerManager.clearTimeout(timer)
     }
     this.timers.clear()
+  }
+
+  /**
+   * 销毁防抖管理器
+   * 
+   * 清除所有定时器并销毁 TimerManager。
+   */
+  dispose(): void {
+    this.clear()
+    this.timerManager.dispose()
   }
 }
 
@@ -283,14 +323,48 @@ export class ThrottleManager {
 }
 
 /**
- * 性能优化器主类
+ * 性能优化器主类（增强版）
+ * 
+ * 集成缓存、持久化、防抖、节流等性能优化功能。
+ * 统一管理所有性能优化资源，确保正确清理。
+ * 
+ * @example
+ * ```typescript
+ * const optimizer = new PerformanceOptimizer({
+ *   cache: { maxSize: 1000, defaultTTL: 5000 },
+ *   persistence: { storage: localStorage }
+ * })
+ * 
+ * // 使用缓存
+ * optimizer.cache.set('key', value, 10000)
+ * 
+ * // 使用持久化
+ * optimizer.persistence.save('store-id', state)
+ * 
+ * // 清理资源
+ * optimizer.dispose()
+ * ```
  */
 export class PerformanceOptimizer {
+  /** 缓存管理器 */
   public readonly cache: CacheManager
+
+  /** 持久化管理器 */
   public readonly persistence: PersistenceManager
+
+  /** 防抖管理器 */
   public readonly debounce: DebounceManager
+
+  /** 节流管理器 */
   public readonly throttle: ThrottleManager
 
+  /**
+   * 创建性能优化器实例
+   * 
+   * @param options - 配置选项
+   * @param options.cache - 缓存配置
+   * @param options.persistence - 持久化配置
+   */
   constructor(options: {
     cache?: { maxSize?: number; defaultTTL?: number }
     persistence?: PersistOptions
@@ -306,17 +380,25 @@ export class PerformanceOptimizer {
 
   /**
    * 清理所有资源
+   * 
+   * 销毁优化器并清理所有相关资源（缓存、定时器等）。
+   * 调用此方法后，优化器将不可再使用。
    */
   dispose(): void {
     // 清理缓存（包括定时器）
     this.cache.dispose()
-    // 清理防抖和节流
-    this.debounce.clear()
+
+    // 清理防抖（包括 TimerManager）
+    this.debounce.dispose()
+
+    // 清理节流
     this.throttle.clear()
   }
 
   /**
    * 清空所有缓存（向后兼容）
+   * 
+   * 清空缓存和防抖/节流状态，但不销毁优化器。
    */
   clear(): void {
     this.cache.clear()

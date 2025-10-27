@@ -44,6 +44,11 @@
       "import": "./es/decorators/*.js",
       "require": "./lib/decorators/*.cjs"
     },
+    "./devtools/*": {
+      "types": "./es/devtools/*.d.ts",
+      "import": "./es/devtools/*.js",
+      "require": "./lib/devtools/*.cjs"
+    },
     "./engine": {
       "types": "./es/engine/index.d.ts",
       "import": "./es/engine/index.js",

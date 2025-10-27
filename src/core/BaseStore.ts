@@ -12,6 +12,7 @@ import type {
 import { defineStore } from 'pinia'
 import { DECORATOR_METADATA_KEY } from '../types/decorators'
 import { PerformanceOptimizer } from './PerformanceOptimizer'
+import { SubscriptionManager } from './SubscriptionManager'
 
 /**
  * 基础 Store 类
@@ -80,8 +81,8 @@ export abstract class BaseStore<
   /** getters 缓存版本号，用于失效缓存 */
   private _gettersCacheVersion = 0
 
-  /** 清理函数列表 */
-  private _cleanupFunctions: (() => void)[] = []
+  /** 订阅管理器（统一管理所有订阅） */
+  private _subscriptionManager = new SubscriptionManager()
 
   /** 性能优化器 */
   private _optimizer: PerformanceOptimizer
@@ -289,6 +290,27 @@ export abstract class BaseStore<
 
   /**
    * 订阅状态变化
+   * 
+   * 监听 Store 状态的所有变化。
+   * 自动通过订阅管理器管理，确保正确清理。
+   * 
+   * @param callback - 状态变化回调函数
+   * @param options - 订阅选项
+   * @param options.detached - 是否分离订阅（不自动清理）
+   * @returns 取消订阅的函数
+   * 
+   * @example
+   * ```typescript
+   * const userStore = new UserStore()
+   * 
+   * // 订阅状态变化
+   * const unsubscribe = userStore.$subscribe((mutation, state) => {
+   *   console.log('状态变化:', mutation.type, state)
+   * })
+   * 
+   * // 手动取消订阅
+   * unsubscribe()
+   * ```
    */
   $subscribe(
     callback: MutationCallback<TState>,
@@ -300,16 +322,41 @@ export abstract class BaseStore<
 
     const unsubscribe = this._store.$subscribe(callback as any, options)
 
-    // 如果不是分离模式，添加到清理函数列表
+    // 如果不是分离模式，添加到订阅管理器
     if (!options?.detached) {
-      this._addCleanup(unsubscribe)
+      this._subscriptionManager.add(unsubscribe)
     }
 
     return unsubscribe
   }
 
   /**
-   * 订阅 Action
+   * 订阅 Action 执行
+   * 
+   * 监听 Store 中所有 Action 的执行。
+   * 可以在 Action 执行前后添加逻辑（如日志、性能监控等）。
+   * 自动通过订阅管理器管理，确保正确清理。
+   * 
+   * @param callback - Action 执行回调函数
+   * @returns 取消订阅的函数
+   * 
+   * @example
+   * ```typescript
+   * const userStore = new UserStore()
+   * 
+   * // 监听所有 Action
+   * userStore.$onAction((context) => {
+   *   console.log(`执行 Action: ${context.name}`, context.args)
+   *   
+   *   context.after((result) => {
+   *     console.log(`Action 完成:`, result)
+   *   })
+   *   
+   *   context.onError((error) => {
+   *     console.error(`Action 失败:`, error)
+   *   })
+   * })
+   * ```
    */
   $onAction(callback: (context: ActionContext<TState, TActions>) => void): () => void {
     if (!this._store) {
@@ -317,7 +364,7 @@ export abstract class BaseStore<
     }
 
     const unsubscribe = this._store.$onAction(callback as any)
-    this._addCleanup(unsubscribe)
+    this._subscriptionManager.add(unsubscribe)
     return unsubscribe
   }
 
@@ -339,19 +386,25 @@ export abstract class BaseStore<
 
   /**
    * 销毁 Store，清理资源
+   * 
+   * 清理所有订阅、缓存和定时器，释放内存。
+   * 调用后 Store 将不可再使用。
+   * 
+   * @example
+   * ```typescript
+   * const userStore = new UserStore()
+   * 
+   * // 使用 Store...
+   * 
+   * // 组件卸载时销毁
+   * userStore.$dispose()
+   * ```
    */
   $dispose(): void {
-    // 执行所有清理函数
-    this._cleanupFunctions.forEach(cleanup => {
-      try {
-        cleanup()
-      } catch (error) {
-        console.error('Cleanup function error:', error)
-      }
-    })
-    this._cleanupFunctions.length = 0
+    // 清理所有订阅（通过订阅管理器）
+    this._subscriptionManager.dispose()
 
-    // 清理性能优化器
+    // 清理性能优化器（包括缓存、定时器等）
     this._optimizer.dispose()
 
     // 清理实例级缓存（元数据缓存是类级别的，不需要清理）
@@ -361,7 +414,7 @@ export abstract class BaseStore<
     this._gettersCacheVersion = 0
     this._initialState = undefined
 
-    // 清理 Pinia Store
+    // 清理 Pinia Store 引用
     this._store = undefined
     this._storeDefinition = undefined
   }
@@ -421,14 +474,12 @@ export abstract class BaseStore<
   }
 
   /**
-   * 添加清理函数
-   */
-  protected _addCleanup(cleanup: () => void): void {
-    this._cleanupFunctions.push(cleanup)
-  }
-
-  /**
    * 初始化 Store
+   * 
+   * 根据配置和装饰器元数据初始化 Pinia store。
+   * 合并用户配置和装饰器定义的状态、动作、计算属性。
+   * 
+   * @private
    */
   private _initializeStore(
     options?: Partial<StoreOptions<TState, TActions, TGetters>>,

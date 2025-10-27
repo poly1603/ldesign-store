@@ -19,10 +19,8 @@ export {
   createAdvancedStore,
   createMiddlewareSystem,
   MiddlewareSystem,
-  SnapshotManager,
   StateDiffer,
   StateValidator,
-  TimeTravelDebugger,
   TransactionManager
 } from './AdvancedFeatures'
 
@@ -144,6 +142,63 @@ export type { ClassStoreOptions, CompositionStoreFactoryOptions, FunctionalStore
 export { PooledStore, StorePool, useStorePool } from './storePool'
 
 export type { StorePoolOptions } from './storePool'
+
+// 定时器管理器
+export { TimerManager } from './TimerManager'
+
+// 订阅管理器
+export { SubscriptionManager, createSubscriptionManager } from './SubscriptionManager'
+
+// Store 消息总线
+export { StoreMessenger, storeMessenger, createStoreMessenger } from './StoreMessaging'
+export type { EventCallback, SubscribeOptions } from './StoreMessaging'
+
+// 状态快照管理
+export { SnapshotManager, createSnapshotManager } from './Snapshot'
+export type { Snapshot, SnapshotMetadata, SnapshotOptions, StateDiff, DiffType } from './Snapshot'
+
+// 批量操作管理
+export { BatchManager, createBatchManager, globalBatchManager, Batch } from './BatchOperations'
+export type { BatchOperation, BatchOptions } from './BatchOperations'
+
+// 时间旅行调试
+export { TimeTravelDebugger, createTimeTravelDebugger } from '../devtools/TimeTraveling'
+export type { HistoryEntry, TimeTravelOptions } from '../devtools/TimeTraveling'
+
+// 插件系统
+export {
+  PluginManager,
+  globalPluginManager,
+  createPluginManager,
+  createPlugin,
+  loggerPlugin,
+  performancePlugin
+} from './Plugin'
+export type { StorePlugin, PluginContext } from './Plugin'
+
+// 性能监控面板
+export {
+  PerformancePanel,
+  createPerformancePanel,
+  globalPerformancePanel
+} from '../devtools/PerformancePanel'
+export type {
+  ActionMetrics,
+  CacheMetrics,
+  MemoryMetrics,
+  PerformanceReport,
+  Bottleneck
+} from '../devtools/PerformancePanel'
+
+// Store 公共功能
+export {
+  StorePersistenceManager,
+  StoreCacheManager,
+  createStoreCommonMethods,
+  createStoreConfig,
+  cloneState
+} from './StoreCommon'
+export type { StoreCommonMethods } from './StoreCommon'
 
 // 工具函数
 export * from './utils'
