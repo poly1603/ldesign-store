@@ -1,0 +1,45 @@
+{
+  "name": "@ldesign/store-nextjs",
+  "version": "0.1.0",
+  "description": "Next.js adapter for @ldesign/store - extends React adapter with Next.js specific features",
+  "keywords": [
+    "nextjs",
+    "react",
+    "state-management",
+    "store",
+    "ssr"
+  ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs,dts"
+  },
+  "dependencies": {
+    "@ldesign/store-core": "workspace:*",
+    "@ldesign/store-react": "workspace:*"
+  },
+  "peerDependencies": {
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "zustand": "^4.0.0"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "typescript": "^5.7.3"
+  }
+}
+
+
+

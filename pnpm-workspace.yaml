@@ -1,0 +1,5 @@
+# Store 子包工作区配置
+packages:
+  - 'packages/*'
+
+

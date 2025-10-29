@@ -1,0 +1,42 @@
+{
+  "name": "@ldesign/store-astro",
+  "version": "0.1.0",
+  "description": "Astro adapter for @ldesign/store - based on nanostores with enhanced features",
+  "keywords": [
+    "astro",
+    "nanostores",
+    "state-management",
+    "store"
+  ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs,dts"
+  },
+  "dependencies": {
+    "@ldesign/store-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "astro": "^4.0.0",
+    "nanostores": "^0.9.0"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "typescript": "^5.7.3"
+  }
+}
+
+
+

@@ -1,0 +1,42 @@
+{
+  "name": "@ldesign/store-preact",
+  "version": "0.1.0",
+  "description": "Preact adapter for @ldesign/store - based on Preact Signals with enhanced features",
+  "keywords": [
+    "preact",
+    "signals",
+    "state-management",
+    "store"
+  ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs,dts"
+  },
+  "dependencies": {
+    "@ldesign/store-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "preact": "^10.0.0",
+    "@preact/signals": "^1.2.0"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "typescript": "^5.7.3"
+  }
+}
+
+
+

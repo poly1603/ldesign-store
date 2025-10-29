@@ -1,159 +1,174 @@
 # @ldesign/store 示例项目
 
-这个目录包含了 `@ldesign/store` 的各种示例项目，从基础用法到高级功能，帮助你快速上手和深入理解。
+演示各框架适配器的使用。
 
-## 示例项目列表
+## 📁 示例列表
 
-### 1. [基础示例 (basic)](./basic/)
+| 框架 | 目录 | 端口 | 状态 |
+|---|---|---|---|
+| Vue 3 | [vue-example](./vue-example) | 3000 | ✅ |
+| React 18 | [react-example](./react-example) | 3001 | ✅ |
+| Solid | solid-example | 3002 | 📅 待创建 |
+| Svelte | svelte-example | 3003 | 📅 待创建 |
 
-展示 `@ldesign/store` 的核心功能和基本用法：
+## 🚀 运行示例
 
-- **计数器示例**: 基本的状态管理和装饰器使用
-- **待办事项示例**: 列表管理和过滤功能
-- **用户管理示例**: 异步操作和持久化存储
-
-**适合人群**: 初学者，想要快速了解基本概念 **学习时间**: 30-60 分钟
-
-### 2. [高级示例 (advanced)](./advanced/)
-
-展示高级功能和企业级最佳实践：
-
-- **性能优化**: Store 池管理、性能监控、缓存策略
-- **复杂状态管理**: 嵌套状态、状态组合、事务处理
-- **高级装饰器**: 自定义装饰器、装饰器组合
-- **企业级功能**: 权限管理、审计日志、数据验证
-
-**适合人群**: 有一定经验的开发者，需要在生产环境中使用 **学习时间**: 2-4 小时
-
-## 快速开始
-
-### 1. 克隆仓库
+### Vue 3 示例
 
 ```bash
-git clone https://github.com/ldesign/store.git
-cd store/packages/store/examples
-```
-
-### 2. 安装依赖
-
-```bash
-# 安装根目录依赖
-cd ../../../
+cd vue-example
 pnpm install
-
-# 或者单独安装示例依赖
-cd packages/store/examples/basic
-pnpm install
-```
-
-### 3. 运行示例
-
-```bash
-# 运行基础示例
-cd basic
-pnpm dev
-
-# 或运行高级示例
-cd ../advanced
 pnpm dev
 ```
 
-## 学习路径
+访问 http://localhost:3000
 
-### 初学者路径
+### React 18 示例
 
-1. **阅读文档**: 先阅读 [基础文档](../docs/getting-started.md)
-2. **基础示例**: 运行并研究 [基础示例](./basic/)
-3. **动手实践**: 尝试修改示例代码，添加新功能
-4. **创建项目**: 基于示例创建自己的小项目
+```bash
+cd react-example
+pnpm install
+pnpm dev
+```
 
-### 进阶路径
+访问 http://localhost:3001
 
-1. **高级示例**: 学习 [高级示例](./advanced/) 中的模式
-2. **性能优化**: 了解性能监控和优化技巧
-3. **架构设计**: 学习复杂应用的状态管理架构
-4. **最佳实践**: 掌握企业级开发的最佳实践
+## 📚 功能演示
 
-## 核心概念对比
+所有示例都演示了以下功能：
 
-| 概念     | 基础示例      | 高级示例        | 说明                   |
-| -------- | ------------- | --------------- | ---------------------- |
-| 状态管理 | ✅ 简单状态   | ✅ 复杂嵌套状态 | 从简单到复杂的状态结构 |
-| 装饰器   | ✅ 基础装饰器 | ✅ 自定义装饰器 | 装饰器的基本和高级用法 |
-| 异步操作 | ✅ 基础异步   | ✅ 复杂异步流程 | 异步操作的不同复杂度   |
-| 性能优化 | ❌            | ✅ 全面优化     | 生产环境的性能考虑     |
-| 错误处理 | ✅ 基础处理   | ✅ 企业级处理   | 错误处理的不同层次     |
-| 测试     | ❌            | ✅ 完整测试     | 测试策略和实践         |
+### 1. 基础状态管理
+- 创建 Store
+- 读取和更新状态
+- Actions 调用
 
-## 技术栈
+### 2. 自动持久化
+- 状态自动保存到 localStorage
+- 刷新页面后自动恢复
+- 清除持久化数据
 
-所有示例项目都使用以下技术栈：
+### 3. LRU 缓存
+- 缓存 API 调用结果
+- 自动过期管理
+- 缓存统计信息（命中率等）
 
-- **Vue 3**: 现代化的前端框架
-- **TypeScript**: 类型安全的 JavaScript
-- **Vite**: 快速的构建工具
-- **@ldesign/store**: 我们的状态管理库
-- **Pinia**: 底层状态管理引擎
+### 4. 性能监控
+- 测量函数执行时间
+- 查看性能指标
+- 平均/最小/最大耗时统计
 
-## 常见问题
+## 💡 学习路径
 
-### Q: 我应该从哪个示例开始？
+1. **先看 Vue 示例** - 最完整的功能演示
+2. **再看 React 示例** - 对比不同框架的使用方式
+3. **查看源码** - 了解如何集成 @ldesign/store
 
-A: 如果你是初学者，建议从 [基础示例](./basic/) 开始。如果你已经有状态管理经验，可以直接查看
-[高级示例](./advanced/)。
+## 🔧 示例代码结构
 
-### Q: 示例项目可以用于生产环境吗？
+每个示例都包含：
 
-A: 基础示例主要用于学习，高级示例包含了生产环境的最佳实践，可以作为生产项目的参考。
+```
+<framework>-example/
+├── src/
+│   ├── stores/          # Store 定义
+│   │   └── user.ts      # 用户 Store + 数据 Store
+│   ├── App.<ext>        # 主组件
+│   └── main.<ext>       # 入口文件
+├── index.html           # HTML 模板
+├── package.json         # 依赖配置
+├── vite.config.ts       # Vite 配置
+└── README.md            # 说明文档
+```
 
-### Q: 如何贡献新的示例？
+## 📝 示例对比
 
-A: 欢迎提交 PR 添加新的示例！请确保：
+### 创建 Store
 
-- 代码质量高，有详细注释
-- 包含完整的 README 说明
-- 展示特定的功能或模式
-- 遵循项目的代码规范
+**Vue**:
+```typescript
+const useUserStore = createVueStore({
+  id: 'user',
+  state: () => ({ name: '', age: 0 }),
+  actions: {
+    setName(name: string) { this.name = name }
+  },
+  persist: true
+})
+```
 
-### Q: 示例项目的依赖版本问题？
+**React**:
+```typescript
+const useUserStore = createReactStore({
+  name: 'user',
+  initialState: { name: '', age: 0 },
+  actions: (set) => ({
+    setName: (name: string) => set({ name })
+  }),
+  persist: true
+})
+```
 
-A: 所有示例都使用 `workspace:*` 引用本地的 `@ldesign/store` 包，确保使用最新版本。
+### 使用 Store
 
-## 贡献指南
+**Vue**:
+```vue
+<template>
+  <h1>{{ store.name }}</h1>
+  <button @click="store.setName('张三')">Set Name</button>
+</template>
 
-我们欢迎社区贡献新的示例项目！
+<script setup>
+const store = useUserStore()
+</script>
+```
 
-### 贡献类型
+**React**:
+```tsx
+function App() {
+  const { name, setName } = useUserStore()
+  
+  return (
+    <>
+      <h1>{name}</h1>
+      <button onClick={() => setName('张三')}>Set Name</button>
+    </>
+  )
+}
+```
 
-- **新示例项目**: 展示特定用例或模式
-- **改进现有示例**: 优化代码、添加功能、修复问题
-- **文档改进**: 完善 README、添加注释
+## 🎯 关键功能展示
 
-### 提交流程
+### 1. 持久化
 
-1. Fork 仓库
-2. 创建功能分支
-3. 开发并测试
-4. 提交 PR
-5. 代码审查
-6. 合并
+所有示例都演示了自动持久化：
+- 修改状态 → 自动保存到 localStorage
+- 刷新页面 → 自动恢复状态
+- 点击重置 → 清除持久化数据
 
-### 示例项目规范
+### 2. 缓存
 
-- 使用 TypeScript
-- 包含完整的 README
-- 代码有详细注释
-- 遵循项目代码规范
-- 包含必要的测试
+数据 Store 演示了智能缓存：
+- 第一次请求 → 从 API 获取（慢）
+- 第二次请求 → 从缓存读取（快）
+- 查看统计 → 命中率、总请求数等
 
-## 相关链接
+### 3. 性能监控
 
-- [完整文档](../docs/)
-- [API 参考](../docs/api/)
-- [GitHub 仓库](https://github.com/ldesign/store)
-- [问题反馈](https://github.com/ldesign/store/issues)
-- [讨论区](https://github.com/ldesign/store/discussions)
+性能测试按钮演示了：
+- 测量异步函数执行时间
+- 查看平均/最小/最大耗时
+- 统计执行次数
 
-## 许可证
+## 🤝 贡献示例
 
-MIT License - 详见 [LICENSE](../../../LICENSE) 文件。
+欢迎为其他框架贡献示例项目！
+
+提交示例时请确保：
+- ✅ 包含完整的功能演示
+- ✅ 有详细的 README
+- ✅ 代码注释清晰
+- ✅ 可直接运行
+
+---
+
+**探索示例，了解 @ldesign/store 的强大功能！** 🚀

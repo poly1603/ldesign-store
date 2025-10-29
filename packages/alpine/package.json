@@ -1,0 +1,41 @@
+{
+  "name": "@ldesign/store-alpine",
+  "version": "0.1.0",
+  "description": "Alpine.js adapter for @ldesign/store - based on Alpine.store() with enhanced features",
+  "keywords": [
+    "alpinejs",
+    "alpine",
+    "state-management",
+    "store"
+  ],
+  "author": "ldesign",
+  "license": "MIT",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "main": "./dist/index.cjs",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build": "ldesign-builder build -f esm,cjs,dts"
+  },
+  "dependencies": {
+    "@ldesign/store-core": "workspace:*"
+  },
+  "peerDependencies": {
+    "alpinejs": "^3.0.0"
+  },
+  "devDependencies": {
+    "@ldesign/builder": "workspace:*",
+    "typescript": "^5.7.3"
+  }
+}
+
+
+
