@@ -1,15 +1,15 @@
 {
   "name": "@ldesign/store-core",
-  "version": "0.1.0",
-  "description": "Framework-agnostic core for @ldesign/store - provides caching, persistence, decorators, and performance monitoring",
+  "version": "1.0.0",
+  "description": "框架无关的状态管理核心库 - 提供状态管理抽象层、插件系统、中间件机制",
   "keywords": [
     "state-management",
     "store",
-    "cache",
-    "persistence",
-    "decorators",
-    "performance",
-    "framework-agnostic"
+    "typescript",
+    "framework-agnostic",
+    "reactive",
+    "plugin",
+    "middleware"
   ],
   "author": "ldesign",
   "license": "MIT",
@@ -17,70 +17,108 @@
   "sideEffects": false,
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
-      "import": "./dist/index.js",
-      "require": "./dist/index.cjs"
+      "types": "./es/index.d.ts",
+      "import": "./es/index.js",
+      "require": "./lib/index.cjs",
+      "default": "./es/index.js"
     },
-    "./cache": {
-      "types": "./dist/cache/index.d.ts",
-      "import": "./dist/cache/index.js",
-      "require": "./dist/cache/index.cjs"
+    "./core": {
+      "types": "./es/core/index.d.ts",
+      "import": "./es/core/index.js",
+      "require": "./lib/core/index.cjs",
+      "default": "./es/core/index.js"
     },
-    "./persistence": {
-      "types": "./dist/persistence/index.d.ts",
-      "import": "./dist/persistence/index.js",
-      "require": "./dist/persistence/index.cjs"
+    "./core/*": {
+      "types": "./es/core/*.d.ts",
+      "import": "./es/core/*.js",
+      "require": "./lib/core/*.cjs",
+      "default": "./es/core/*.js"
     },
-    "./decorators": {
-      "types": "./dist/decorators/index.d.ts",
-      "import": "./dist/decorators/index.js",
-      "require": "./dist/decorators/index.cjs"
+    "./middleware": {
+      "types": "./es/middleware/index.d.ts",
+      "import": "./es/middleware/index.js",
+      "require": "./lib/middleware/index.cjs",
+      "default": "./es/middleware/index.js"
     },
-    "./performance": {
-      "types": "./dist/performance/index.d.ts",
-      "import": "./dist/performance/index.js",
-      "require": "./dist/performance/index.cjs"
+    "./middleware/*": {
+      "types": "./es/middleware/*.d.ts",
+      "import": "./es/middleware/*.js",
+      "require": "./lib/middleware/*.cjs",
+      "default": "./es/middleware/*.js"
+    },
+    "./plugins": {
+      "types": "./es/plugins/index.d.ts",
+      "import": "./es/plugins/index.js",
+      "require": "./lib/plugins/index.cjs",
+      "default": "./es/plugins/index.js"
+    },
+    "./plugins/*": {
+      "types": "./es/plugins/*.d.ts",
+      "import": "./es/plugins/*.js",
+      "require": "./lib/plugins/*.cjs",
+      "default": "./es/plugins/*.js"
+    },
+    "./types": {
+      "types": "./es/types/index.d.ts",
+      "import": "./es/types/index.js",
+      "require": "./lib/types/index.cjs",
+      "default": "./es/types/index.js"
+    },
+    "./types/*": {
+      "types": "./es/types/*.d.ts",
+      "import": "./es/types/*.js",
+      "require": "./lib/types/*.cjs",
+      "default": "./es/types/*.js"
     },
     "./utils": {
-      "types": "./dist/utils/index.d.ts",
-      "import": "./dist/utils/index.js",
-      "require": "./dist/utils/index.cjs"
-    }
+      "types": "./es/utils/index.d.ts",
+      "import": "./es/utils/index.js",
+      "require": "./lib/utils/index.cjs",
+      "default": "./es/utils/index.js"
+    },
+    "./utils/*": {
+      "types": "./es/utils/*.d.ts",
+      "import": "./es/utils/*.js",
+      "require": "./lib/utils/*.cjs",
+      "default": "./es/utils/*.js"
+    },
+    "./package.json": "./package.json"
   },
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "main": "./lib/index.cjs",
+  "module": "./es/index.js",
+  "types": "./es/index.d.ts",
+  "unpkg": "./dist/index.js",
+  "jsdelivr": "./dist/index.js",
   "files": [
     "README.md",
     "LICENSE",
-    "package.json",
+    "CHANGELOG.md",
+    "es",
+    "lib",
     "dist"
   ],
   "scripts": {
-    "build": "ldesign-builder build -f esm,cjs,dts",
-    "dev": "ldesign-builder build -f esm,cjs,dts --watch",
-    "type-check": "tsc --noEmit",
-    "lint": "eslint . --fix",
-    "lint:check": "eslint .",
+    "build": "ldesign-builder build",
+    "build:watch": "ldesign-builder build --watch",
+    "dev": "ldesign-builder build --watch",
     "test": "vitest",
-    "test:ui": "vitest --ui",
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "clean": "rimraf dist"
+    "lint": "eslint . --fix",
+    "lint:check": "eslint .",
+    "type-check": "tsc --noEmit",
+    "clean": "rimraf es lib dist"
   },
   "dependencies": {
-    "reflect-metadata": "^0.2.1"
+    "tslib": "^2.6.2"
   },
   "devDependencies": {
     "@ldesign/builder": "workspace:*",
     "@types/node": "^22.0.0",
-    "@antfu/eslint-config": "^6.0.0",
-    "@vitest/ui": "^3.2.4",
     "eslint": "^9.18.0",
     "typescript": "^5.7.3",
-    "vite": "^5.0.12",
     "vitest": "^3.2.4"
-  }
+  },
+  "typings": "./es/index.d.ts",
+  "browser": "./dist/index.js"
 }
-
-
