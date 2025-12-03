@@ -45,22 +45,33 @@ export {
   usePersist,
   usePersistedRef,
   usePersistedRefWithTTL,
+  usePersistedState,
   useSimpleStore,
   useStore,
   useSubscribe,
   useWatch,
 } from './composables'
 
-export type { ActionContext } from './composables'
+export type {
+  ActionContext,
+  PersistedStateOptions,
+  PersistedStateReturn,
+} from './composables'
 
 // === 插件 ===
 export {
   createPersistPlugin,
+  createEnhancedPersistPlugin,
+  cleanupEnhancedPersist,
   createStoreEnginePlugin,
   getGlobalStoreAPI,
 } from './plugins'
 
-export type { PersistPluginOptions } from './plugins'
+export type {
+  PersistPluginOptions,
+  EnhancedPersistPluginOptions,
+  EnhancedPersistOptions,
+} from './plugins'
 
 // === 类型 ===
 export type {

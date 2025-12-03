@@ -17,6 +17,15 @@ export {
 } from './usePersist'
 
 export {
+  usePersistedState,
+} from './usePersistedState'
+
+export type {
+  PersistedStateOptions,
+  PersistedStateReturn,
+} from './usePersistedState'
+
+export {
   useOnAction,
   useSubscribe,
   useWatch,
